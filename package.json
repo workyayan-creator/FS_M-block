@@ -1,0 +1,13 @@
+{
+  "name": "blok-m-feasibility-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard feasibility study Kawasan TOD Blok M: peta 3D interaktif (Three.js) dan dashboard 2D",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --format=iife --minify --alias:three=./src/vendor/three.module.min.js --outfile=app.js",
+    "serve": "python -m http.server 8000"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
