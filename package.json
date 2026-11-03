@@ -1,0 +1,16 @@
+{
+  "name": "blok-m-feasibility-dashboard",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Peta 3D interaktif studi kelayakan Kawasan TOD Blok M (Three.js, camera-controls, Apache ECharts, anime.js) dan dashboard 2D",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --format=iife --minify --target=es2020 --alias:three=./src/vendor/three.module.min.js --outfile=app.js",
+    "serve": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "echarts": "^5.6.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

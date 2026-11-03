@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F0EA">
+<title>Blok M 3D · Studi Kelayakan Kawasan</title>
+<meta name="description" content="Peta 3D interaktif studi kelayakan Kawasan TOD Blok M: aksesibilitas, walkability, keragaman fungsi, termal, angin, kebisingan, ruang hijau, energi surya, potensi pengembangan, dan heatmap sosial.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M8 1l7 4v6l-7 4-7-4V5z%22 fill=%22%23C2441F%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap">
+<style>
+:root{
+  --bg:#F3F0EA;--kartu:rgba(255,255,255,.88);--kartu-solid:#fff;--ink:#1F1F1F;--ink2:#46423D;--redam:#6E6963;--garis:#E6E2DC;--lembut:#F1EEE9;
+  --aksen:#C2441F;--tint:#FBE9E2;--c:#C2441F;--ease:cubic-bezier(.22,1.2,.36,1);--ease2:cubic-bezier(.65,0,.35,1);
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+  --rad:20px;--bayang:0 12px 32px -18px rgba(40,30,20,.5),0 0 0 1px rgba(255,255,255,.55) inset;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);overscroll-behavior:none}
+body{font-family:'Nunito',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;touch-action:manipulation}
+h1,h2,h3,h4,p{margin:0}
+button,select,input{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+#gl{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;outline:none;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.kartu{background:var(--kartu);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border-radius:var(--rad);box-shadow:var(--bayang)}
+.ui{position:fixed;z-index:5}
+
+/* ---------- label 3D ---------- */
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font:800 12px 'Nunito';color:var(--ink);will-change:transform;transition:opacity .3s}
+.lbl.transit{display:flex;align-items:center;gap:5px;margin:-10px 0 0 -10px;background:rgba(255,255,255,.94);padding:3px 9px 3px 3px;border-radius:999px;box-shadow:0 4px 12px -6px rgba(0,0,0,.4);font-size:11.5px}
+.pin{width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.pin.mrt{background:#C2441F}.pin.tj{background:#2F6BD8}
+.lbl.landmark{display:flex;flex-direction:column;align-items:center;margin-top:-42px;translate:-50% 0;background:var(--ink);color:#fff;padding:5px 10px;border-radius:10px;font-size:12px;pointer-events:auto;cursor:pointer}
+.lbl.landmark span{font:700 10.5px 'Nunito';color:#C9C4BC}
+.lbl.landmark::after{content:'';position:absolute;bottom:-5px;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.lbl.tempat{translate:-50% -50%;font:900 11px 'Nunito';text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 7px #fff;letter-spacing:.04em;text-transform:uppercase;color:#3b3732}
+.lbl.zona{translate:-50% -50%;background:var(--c);color:#fff;padding:4px 11px;border-radius:999px;font:900 11.5px 'Nunito';box-shadow:0 6px 16px -8px var(--c)}
+.lbl.ring{translate:-50% -50%;background:var(--ink);color:#fff;padding:2px 9px;border-radius:999px;font-size:11px}
+body.malam .lbl.tempat{color:#F3EDE4;text-shadow:0 0 4px #000,0 0 8px #000}
+
+/* ---------- header ---------- */
+.brand{left:16px;top:calc(14px + var(--safe-t));padding:12px 16px 12px 12px;display:flex;align-items:center;gap:12px;max-width:340px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--aksen);display:grid;place-items:center;flex:none;box-shadow:0 8px 18px -8px var(--aksen)}
+.brand h1{font-size:19px;font-weight:900;line-height:1.05;letter-spacing:-.01em}
+.brand h1 span{color:var(--aksen)}
+.brand p{font:700 11.5px 'Nunito';color:var(--redam);margin-top:2px}
+.alat{right:16px;top:calc(14px + var(--safe-t));display:flex;gap:8px;align-items:flex-start}
+.grup{display:flex;gap:2px;padding:4px;border-radius:14px}
+.tb{border:0;background:none;border-radius:10px;height:34px;padding:0 11px;font:800 12.5px 'Nunito';color:var(--ink2);display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,transform .3s var(--ease);white-space:nowrap}
+.tb:hover{background:rgba(0,0,0,.05)}
+.tb.on{background:var(--ink);color:#fff}
+.tb.ikon{width:34px;padding:0;justify-content:center}
+.menu{position:absolute;top:44px;right:0;min-width:220px;padding:6px;display:flex;flex-direction:column;gap:2px;transform-origin:top right;animation:pop .28s var(--ease)}
+.menu[hidden]{display:none}
+.alat{z-index:7}
+.menu{max-height:calc(100vh - 90px);max-height:calc(100dvh - 90px);overflow-y:auto}
+.menu .tb.on{background:var(--tint);color:var(--ink)}
+.menu .tb.on::after{content:'\2713';margin-left:auto;font-weight:900;color:var(--aksen)}
+@media (max-width:860px){.menu{max-height:calc(100dvh - 270px)}}
+.menu .tb{justify-content:flex-start;height:38px}
+.menu small{font:800 10.5px 'Nunito';color:var(--redam);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 2px}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ---------- rel lensa (desktop) ---------- */
+.rel{left:16px;top:96px;bottom:16px;width:248px;padding:8px;overflow-y:auto;scrollbar-width:none}
+.rel::-webkit-scrollbar{display:none}
+.rel h4{font:900 10.5px 'Nunito';color:var(--redam);text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 4px}
+.lensa{width:100%;display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:10px;border:0;background:none;border-radius:14px;padding:5px 8px;text-align:left;font:800 13.5px 'Nunito';transition:background .25s,transform .35s var(--ease)}
+.lensa small{display:block;font:700 11px 'Nunito';color:var(--redam);margin-top:1px}
+.lensa i{width:32px;height:32px;border-radius:10px;background:var(--k);display:grid;place-items:center;color:#fff;font-style:normal;transition:transform .45s var(--ease)}
+.lensa i svg{width:17px;height:17px}
+.lensa b{font:900 11px 'Nunito';color:var(--redam);background:var(--lembut);border-radius:999px;padding:2px 7px;min-width:30px;text-align:center}
+.lensa:hover{background:rgba(0,0,0,.04);transform:translateX(3px)}
+.lensa.on{background:#fff;box-shadow:0 0 0 2px var(--k) inset,0 8px 20px -14px var(--k)}
+.lensa.on i{transform:scale(1.08) rotate(-8deg)}
+.lensa.on b{background:var(--k);color:#fff}
+
+/* ---------- panel wawasan ---------- */
+.panel{right:16px;top:70px;bottom:16px;width:380px;display:flex;flex-direction:column;overflow:hidden}
+.panel-isi{flex:1;overflow-y:auto;padding:18px 18px 22px;scrollbar-width:thin;overscroll-behavior:contain}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font:900 11px 'Nunito';color:var(--c);text-transform:uppercase;letter-spacing:.07em}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.panel h2{font-size:22px;font-weight:900;line-height:1.12;margin:6px 0 6px;letter-spacing:-.01em}
+.lede{font:600 13.5px/1.55 'Nunito';color:var(--ink2)}
+.lede b{color:var(--ink);font-weight:800}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 4px}
+.kpi{background:var(--kartu-solid);border-radius:14px;padding:11px 12px;box-shadow:0 0 0 1px var(--garis) inset;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c);opacity:.85}
+.kpi b{display:block;font-size:22px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi b small{font-size:12px;font-weight:800;color:var(--redam);margin-left:1px}
+.kpi>span{display:block;font:700 11.5px/1.3 'Nunito';color:var(--redam);margin-top:4px}
+.kpi.status-ok::before{background:#2E9A6A}.kpi.status-no::before{background:#C2441F}
+.chart-box{background:var(--kartu-solid);border-radius:16px;box-shadow:0 0 0 1px var(--garis) inset;padding:10px 8px 4px;margin:12px 0 4px}
+.chart-box h3{font:900 12.5px 'Nunito';padding:2px 8px 0;display:flex;justify-content:space-between;gap:8px}
+.chart-box h3 span{font-weight:700;color:var(--redam);font-size:11px}
+.chart{width:100%;height:200px}
+.temuan{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.temuan li{display:grid;grid-template-columns:22px 1fr;gap:8px;font:600 13px/1.5 'Nunito';color:var(--ink2)}
+.temuan li i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font:900 11px 'Nunito';font-style:normal;color:#fff;background:var(--c)}
+.temuan li i.rk{background:#2E9A6A}
+.temuan b{color:var(--ink);font-weight:800}
+.sumber{font:600 11px/1.5 'Nunito';color:var(--redam);margin-top:12px;padding-top:10px;border-top:1px dashed var(--garis)}
+.skenario{margin-top:12px;background:linear-gradient(135deg,var(--tint),#fff);border-radius:16px;padding:12px 14px;box-shadow:0 0 0 1px var(--garis) inset}
+.skenario h4{font:900 13px 'Nunito';display:flex;align-items:center;gap:6px}
+.skenario p{font:600 12px/1.45 'Nunito';color:var(--ink2);margin-top:4px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font:800 12.5px 'Nunito'}
+.sw{position:relative;width:44px;height:26px;flex:none}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;background:#D9D4CD;border-radius:999px;transition:background .25s}
+.sw span::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .35s var(--ease)}
+.sw input:checked+span{background:var(--c)}
+.sw input:checked+span::after{transform:translateX(18px)}
+.delta{display:inline-flex;align-items:center;gap:4px;font:900 12px 'Nunito';border-radius:999px;padding:3px 9px;background:#E3F3EA;color:#1F7A4D;margin-top:8px}
+.rentang{width:100%;accent-color:var(--c);margin-top:8px}
+.seg{display:flex;gap:2px;background:var(--lembut);border-radius:999px;padding:3px;margin-top:10px}
+.seg button{flex:1;border:0;background:none;border-radius:999px;padding:7px 6px;font:800 11.5px 'Nunito';color:var(--ink2);transition:background .2s,color .2s}
+.seg button.on{background:var(--ink);color:#fff}
+select{border:0;background:var(--lembut);border-radius:10px;padding:7px 9px;font:800 12px 'Nunito'}
+
+/* ---------- dok waktu ---------- */
+.dok{left:280px;right:412px;bottom:calc(16px + var(--safe-b));padding:9px 12px 9px 9px;display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center}
+.main{width:42px;height:42px;border-radius:50%;border:0;background:var(--ink);color:#fff;display:grid;place-items:center;transition:transform .3s var(--ease),background .3s}
+.main:hover{transform:scale(1.08)}.main.on{background:var(--c)}
+.jam b{display:block;font:900 22px 'Nunito';font-variant-numeric:tabular-nums;line-height:1}
+.jam span{font:700 11px 'Nunito';color:var(--redam);white-space:nowrap}
+.trek{position:relative;height:40px;min-width:120px}
+.trek svg{position:absolute;inset:0;width:100%;height:100%}
+#slider{position:absolute;inset:0;width:100%;height:40px;appearance:none;background:transparent;margin:0}
+#slider::-webkit-slider-runnable-track{height:40px;background:transparent}
+#slider::-webkit-slider-thumb{appearance:none;width:5px;height:40px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 3px #fff}
+#slider::-moz-range-thumb{width:5px;height:40px;border-radius:3px;border:0;background:var(--ink);box-shadow:0 0 0 3px #fff}
+.dok-opsi{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.cek{display:flex;gap:4px}
+.chip{border:0;background:var(--lembut);border-radius:999px;padding:4px 9px;font:800 11px 'Nunito';color:var(--ink2);transition:background .2s,color .2s}
+.chip.on{background:var(--ink);color:#fff}
+
+/* ---------- legenda, probe, kompas ---------- */
+.legenda{left:280px;bottom:calc(90px + var(--safe-b));padding:11px 13px;width:220px;transition:opacity .3s}
+.legenda b{font:900 12.5px 'Nunito';display:block;margin-bottom:6px}
+.sk{height:9px;border-radius:6px;margin:4px 0}
+.tk{display:flex;justify-content:space-between;font:700 10.5px 'Nunito';color:var(--redam)}
+.li{display:flex;align-items:center;gap:7px;font:700 11.5px 'Nunito';color:var(--ink2);margin:3px 0}
+.li i{width:11px;height:11px;border-radius:4px;flex:none}
+.probe{position:fixed;z-index:8;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 11px;font:700 12px/1.4 'Nunito';max-width:240px;opacity:0;transform:translate(14px,-50%) scale(.96);transition:opacity .15s,transform .2s var(--ease)}
+.probe.on{opacity:1;transform:translate(14px,-50%) scale(1)}
+.probe b{font-weight:900}.probe .tg{color:#BDB8B0}
+.kompas{right:412px;bottom:calc(90px + var(--safe-b));width:50px;height:50px;border-radius:50%;display:grid;place-items:center;border:0}
+#utara{width:36px;height:36px}
+
+/* ---------- kartu bangunan ---------- */
+.info{right:412px;top:70px;width:300px;padding:16px;animation:pop .35s var(--ease)}
+.info[hidden]{display:none}
+.info h3{font-size:18px;font-weight:900;margin:8px 0 2px;line-height:1.15}
+.info .x{position:absolute;right:10px;top:10px;border:0;background:var(--lembut);width:30px;height:30px;border-radius:50%;font-weight:900}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font:900 11px 'Nunito'}
+
+/* ---------- tur cerita ---------- */
+.cerita{left:50%;top:calc(80px + var(--safe-t));transform:translateX(-50%);width:min(560px,calc(100vw - 32px));padding:16px 18px 14px;animation:pop .4s var(--ease)}
+.cerita[hidden]{display:none}
+.cerita .langkah{font:900 11px 'Nunito';color:var(--c);text-transform:uppercase;letter-spacing:.07em}
+.cerita h3{font-size:19px;font-weight:900;margin:4px 0 4px}
+.cerita p{font:600 13.5px/1.5 'Nunito';color:var(--ink2)}
+.cerita .nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px}
+.titik{display:flex;gap:5px;flex:1}
+.titik i{height:4px;flex:1;border-radius:3px;background:var(--garis);overflow:hidden;position:relative}
+.titik i.on::after{content:'';position:absolute;inset:0;background:var(--c);transform-origin:left;animation:isi var(--d,7s) linear forwards}
+.titik i.lewat{background:var(--c)}
+@keyframes isi{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.btn{border:0;border-radius:12px;height:36px;padding:0 14px;font:900 12.5px 'Nunito';background:var(--lembut);color:var(--ink);display:inline-flex;align-items:center;gap:6px;transition:transform .3s var(--ease)}
+.btn:hover{transform:translateY(-1px)}
+.btn.primer{background:var(--ink);color:#fff}
+
+/* ---------- onboarding & modal ---------- */
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(31,28,24,.38);backdrop-filter:blur(4px);display:grid;place-items:center;padding:18px}
+.overlay[hidden]{display:none}
+.dialog{background:#FCFBF8;border-radius:26px;width:min(720px,100%);max-height:88vh;max-height:88dvh;overflow:auto;padding:26px;animation:pop .45s var(--ease);box-shadow:0 30px 80px -30px rgba(0,0,0,.5)}
+.dialog h2{font-size:26px;font-weight:900;letter-spacing:-.015em}
+.dialog h2 span{color:var(--aksen)}
+.dialog>p{font:600 14px/1.55 'Nunito';color:var(--ink2);margin-top:6px}
+.kiat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.kiat div{background:#fff;border-radius:18px;padding:14px;box-shadow:0 0 0 1px var(--garis) inset}
+.kiat i{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--tint);color:var(--aksen);font-style:normal;font-size:18px}
+.kiat b{display:block;font:900 14px 'Nunito';margin-top:10px}
+.kiat span{display:block;font:600 12.5px/1.45 'Nunito';color:var(--ink2);margin-top:4px}
+.dialog .aksi{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.metode h3{font-size:15px;font-weight:900;margin:16px 0 4px}
+.metode p,.metode li{font:600 13.5px/1.55 'Nunito';color:var(--ink2)}
+.metode ol{padding-left:20px;margin:4px 0}
+.tutup{float:right;border:0;background:var(--lembut);width:36px;height:36px;border-radius:50%;font:900 15px 'Nunito'}
+
+#memuat{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;font:800 14px 'Nunito';color:var(--redam);transition:opacity .9s .3s,visibility 0s 1.3s}
+#memuat.hilang{opacity:0;visibility:hidden}
+.kubus{width:48px;height:48px;background:var(--aksen);border-radius:13px;animation:putar 1.3s infinite var(--ease)}
+@keyframes putar{0%{transform:rotate(0) scale(1)}50%{transform:rotate(90deg) scale(.78)}100%{transform:rotate(180deg) scale(1)}}
+.bar-muat{width:180px;height:4px;border-radius:3px;background:var(--garis);overflow:hidden}
+.bar-muat i{display:block;height:100%;width:30%;background:var(--aksen);border-radius:3px;animation:muat 1.2s infinite var(--ease2)}
+@keyframes muat{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+
+/* ---------- lembar bawah (HP) ---------- */
+.sheet{display:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 14px 10px;scrollbar-width:none;scroll-snap-type:x proximity}
+.chips::-webkit-scrollbar{display:none}
+.chips .lensa{width:auto;grid-template-columns:28px auto;padding:5px 12px 5px 5px;border-radius:999px;background:var(--lembut);font-size:12.5px;scroll-snap-align:start;flex:none}
+.chips .lensa i{width:28px;height:28px;border-radius:50%}
+.chips .lensa i svg{width:15px;height:15px}
+.chips .lensa small,.chips .lensa b{display:none}
+.chips .lensa:hover{transform:none}
+.chips .lensa.on{background:#fff}
+
+/* ---------- malam ---------- */
+body.malam{--kartu:rgba(28,31,40,.84);--kartu-solid:rgba(255,255,255,.06);--ink:#F3EFE8;--ink2:#D8D2C8;--redam:#A9A39A;--garis:#3A3D48;--lembut:rgba(255,255,255,.08);--tint:rgba(194,68,31,.18)}
+body.malam .tb.on,body.malam .main,body.malam .btn.primer,body.malam .chip.on,body.malam .seg button.on{background:#F3EFE8;color:#1F1F1F}
+body.malam .lensa.on,body.malam .chips .lensa.on{background:rgba(255,255,255,.1)}
+body.malam .lbl.transit{background:rgba(30,32,40,.92);color:#F3EFE8}
+body.malam .lbl.landmark{background:#F3EFE8;color:#1F1F1F}body.malam .lbl.landmark span{color:#6A6763}body.malam .lbl.landmark::after{border-top-color:#F3EFE8}
+body.malam .probe{background:#F3EFE8;color:#1F1F1F}
+body.malam .dialog{background:#1E2129}
+.kartu,.lbl,.kpi,.chart-box{transition:background .6s,color .6s}
+
+/* ---------- tablet ---------- */
+@media (max-width:1280px){
+  .panel{width:340px}.info,.kompas{right:372px}
+  .dok{right:372px;grid-template-columns:auto auto 1fr}
+  .dok-opsi{display:none}
+  .legenda{display:none}
+}
+/* ---------- HP ---------- */
+@media (max-width:860px){
+  :root{--peek:178px}
+  .rel,.panel,.legenda{display:none}
+  .brand{left:10px;top:calc(10px + var(--safe-t));padding:8px 12px 8px 8px;max-width:calc(100vw - 150px)}
+  .brand .logo{width:34px;height:34px;border-radius:10px}
+  .brand h1{font-size:16px}.brand p{display:none}
+  .alat{right:10px;top:calc(10px + var(--safe-t))}
+  .alat .grup.lebar{display:none}
+  .kompas{right:12px;top:calc(68px + var(--safe-t));bottom:auto;width:42px;height:42px}
+  .info{left:10px;right:10px;width:auto;top:auto;bottom:calc(var(--peek) + 10px)}
+  .cerita{top:calc(64px + var(--safe-t));width:calc(100vw - 20px)}
+  .cerita h3{font-size:17px}.cerita p{font-size:13px}
+  .kiat{grid-template-columns:1fr}
+  .dialog{padding:20px;border-radius:22px}
+  .dialog h2{font-size:22px}
+  .sheet{--peek:178px;display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:6;height:92vh;height:92dvh;border-radius:24px 24px 0 0;transform:translateY(calc(100% - var(--peek) - var(--safe-b)));transition:transform .55s var(--ease);will-change:transform;padding-bottom:var(--safe-b)}
+  .sheet.half{transform:translateY(46%)}
+  .sheet.full{transform:translateY(0)}
+  .sheet.seret{transition:none}
+  .pegangan{padding:8px 0 6px;display:grid;place-items:center;touch-action:none;cursor:grab}
+  .pegangan i{width:42px;height:5px;border-radius:3px;background:#CFC9C1}
+  .sheet .dok{position:static;transform:none;width:auto;min-width:0;left:auto;right:auto;margin:0 12px 10px;box-shadow:0 0 0 1px var(--garis) inset;background:var(--kartu-solid);grid-template-columns:auto auto 1fr;padding:6px 10px 6px 6px;gap:10px}
+  .sheet .dok .main{width:36px;height:36px}.sheet .dok .jam b{font-size:18px}.sheet .dok .jam span{display:none}
+  .sheet .dok-opsi{display:none}
+  .sheet .panel-isi{padding:6px 16px 30px;flex:1;overflow-y:auto;touch-action:pan-y}
+  .sheet .panel-isi h2{font-size:20px}
+  .sheet .legenda-hp{margin:0 16px 8px}
+  .chart{height:180px}
+}
+@media (min-width:861px){ .legenda-hp{display:none} }
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="gl" tabindex="0" aria-label="Peta 3D Kawasan Blok M"></canvas>
+<div id="labels" aria-hidden="true"></div>
+
+<header class="ui kartu brand">
+  <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></div>
+  <div><h1>Blok M <span>3D</span></h1><p>Studi kelayakan kawasan TOD · Jakarta Selatan</p></div>
+</header>
+
+<div class="ui alat">
+  <div class="kartu grup lebar" role="group" aria-label="Sudut pandang" id="grup-view"></div>
+  <div class="kartu grup" style="position:relative">
+    <button class="tb" id="b-tur" type="button" title="Tur cerita"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg><span class="lbl-tur">Tur</span></button>
+    <button class="tb ikon" id="b-menu" type="button" aria-label="Menu" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="kartu menu" id="menu" hidden>
+      <small>Sudut pandang</small><div id="menu-view" style="display:flex;flex-direction:column;gap:2px"></div>
+      <small>Peta dasar</small>
+      <button class="tb on" data-dasar="dasar" type="button">Minimal</button>
+      <button class="tb" data-dasar="peta" type="button">Peta OSM</button>
+      <button class="tb" data-dasar="satelit" type="button">Satelit</button>
+      <small>Tampilan</small>
+      <button class="tb on" data-opsi="fokus" type="button">Fokus kawasan inti</button>
+      <button class="tb on" data-opsi="orang" type="button">Pejalan kaki</button>
+      <button class="tb on" data-opsi="pohon" type="button">Pohon</button>
+      <button class="tb on" data-opsi="label" type="button">Label</button>
+      <small>Lainnya</small>
+      <button class="tb" id="b-lokasi" type="button">Terbang ke lokasi…</button>
+      <button class="tb" id="b-metode" type="button">Metodologi &amp; sumber</button>
+      <button class="tb" id="b-bantuan" type="button">Panduan singkat</button>
+      <a class="tb" href="2d/" style="text-decoration:none">Dashboard 2D</a>
+    </div>
+  </div>
+</div>
+
+<nav class="ui kartu rel" id="rel" aria-label="Lensa analisis"></nav>
+<aside class="ui kartu panel" id="panel" aria-live="polite"><div class="panel-isi" id="panel-isi"></div></aside>
+<div class="ui kartu legenda" id="legenda"></div>
+<button class="ui kartu kompas" id="kompas" type="button" title="Hadap utara"><svg id="utara" viewBox="0 0 40 40"><path d="M20 4l6 16h-12z" fill="#C2441F"/><path d="M20 36l-6-16h12z" fill="#BDB8B0"/></svg></button>
+<div class="ui kartu info" id="info" hidden></div>
+<div class="probe" id="probe"></div>
+
+<div class="ui kartu dok" id="dok">
+  <button class="main" id="main" type="button" aria-label="Putar siklus 24 jam"><svg id="ikon-main" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg></button>
+  <div class="jam"><b id="jam">16:30</b><span id="jam-info"></span></div>
+  <div class="trek"><svg id="ritme" viewBox="0 0 300 36" preserveAspectRatio="none"></svg><input type="range" id="slider" min="5" max="24" step="0.05" value="16.5" aria-label="Jam"></div>
+  <div class="dok-opsi">
+    <select id="tanggal" aria-label="Tanggal"><option value="80">21 Maret</option><option value="172">21 Juni</option><option value="264">21 September</option><option value="355">21 Desember</option></select>
+    <div class="cek" id="kecepatan"><button class="chip" data-sp="0.5" type="button">0,5×</button><button class="chip on" data-sp="1" type="button">1×</button><button class="chip" data-sp="3" type="button">3×</button></div>
+  </div>
+</div>
+
+<section class="sheet kartu" id="sheet" aria-label="Panel analisis">
+  <div class="pegangan" id="pegangan" role="button" aria-label="Geser panel"><i></i></div>
+  <div class="chips" id="chips"></div>
+  <div id="slot-dok"></div>
+  <div class="legenda-hp" id="legenda-hp"></div>
+  <div class="panel-isi" id="panel-hp"></div>
+</section>
+
+<div class="ui kartu cerita" id="cerita" hidden></div>
+
+<div class="overlay" id="onboard" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ob-j">
+    <h2 id="ob-j">Selamat datang di <span>Blok M 3D</span></h2>
+    <p>Peta ini merangkum studi kelayakan kawasan inti Blok M (29 ha) dari data OSM, citra satelit, 14 jurnal, regulasi, dan data operator transit.</p>
+    <div class="kiat">
+      <div><i>◆</i><b>Pilih lensa</b><span>12 analisis: dari aksesibilitas, angin, kebisingan, sampai potensi pengembangan.</span></div>
+      <div><i>◷</i><b>Geser waktu</b><span>Matahari, bayangan, keramaian, dan lampu kota berubah sepanjang hari.</span></div>
+      <div><i>✦</i><b>Sentuh & jelajah</b><span>Klik bangunan atau tanah untuk nilai di titik itu. Coba skenario di panel.</span></div>
+    </div>
+    <div class="aksi"><button class="btn" id="ob-sendiri" type="button">Jelajah sendiri</button><button class="btn primer" id="ob-tur" type="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>Mulai tur cerita</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="lokasi" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="lk-j" style="max-width:460px">
+    <button class="tutup" type="button" aria-label="Tutup">✕</button>
+    <h2 id="lk-j">Terbang ke lokasi</h2>
+    <div id="daftar-lokasi" style="display:flex;flex-direction:column;gap:6px;margin-top:14px"></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal" hidden>
+  <div class="dialog metode" role="dialog" aria-modal="true" aria-labelledby="m-j">
+    <button class="tutup" type="button" aria-label="Tutup">✕</button>
+    <h2 id="m-j">Metodologi &amp; sumber</h2>
+    <div id="isi-metode"></div>
+  </div>
+</div>
+
+<div id="memuat"><div class="kubus"></div><div class="bar-muat"><i></i></div>Membangun kawasan Blok M…</div>
+<script src="data3d.js"></script>
+<script src="data_v2.js"></script>
+<script src="aset.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
