@@ -26,11 +26,6 @@ Klik dua kali `index.html`. Tidak perlu server, karena data dan gambar sudah dib
 
 Tambahkan `?lite` di URL untuk memaksa mode ringan (bayangan lebih kecil, tanpa efek bloom) pada perangkat lemah.
 
-## GitHub Pages
-
-1. Unggah seluruh isi folder ini ke repo (pastikan `index.html` berada di root).
-2. **Settings → Pages → Deploy from a branch**, branch `main`, folder `/ (root)`.
-3. Buka `https://<username>.github.io/<nama-repo>/`. Tautan langsung ke lensa memakai hash, misalnya `#angin`, `#bising`, `#intensitas`.
 
 ## Struktur
 
