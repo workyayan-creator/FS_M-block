@@ -1,8 +1,6 @@
-# build/data3d.json + build/*.webp -> data3d.js dan aset.js (bisa dibuka lewat file:// tanpa server)
-import base64, json
-open('data3d.js', 'w', encoding='utf-8').write('window.D3=' + open('build/data3d.json', encoding='utf-8').read() + ';')
-A = {k: 'data:image/webp;base64,' + base64.b64encode(open(f'build/{k}.webp', 'rb').read()).decode() for k in ['dasar', 'peta', 'satelit']}
-open('aset.js', 'w', encoding='utf-8').write('window.ASET=' + json.dumps(A) + ';')
-
-# data analisis v2 (kawasan inti)
-open('data_v2.js', 'w', encoding='utf-8').write('window.DV2=' + open('build/data_v2.json', encoding='utf-8').read() + ';')
+# Bundel data web (bisa dibuka lewat file:// tanpa server). Data berat dipisah agar dimuat hanya saat dibutuhkan:
+#   aset.js (peta minimal) | aset_peta.js, aset_satelit.js (saat dipilih) | data_angin.js (saat lensa Angin dibuka)
+import base64, json, subprocess, sys, os
+def webp(k): return 'data:image/webp;base64,' + base64.b64encode(open(f'build/{k}.webp', 'rb').read()).decode()
+open('build/aset_semua.js', 'w').write('window.ASET=' + json.dumps({k: webp(k) for k in ['dasar', 'peta', 'satelit']}) + ';')
+subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), 'bundle_web.py'), 'build/', './', 'build/aset_semua.js'], check=True)

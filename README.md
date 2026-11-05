@@ -1,78 +1,85 @@
-# Studi Kelayakan Kawasan TOD Blok M
+# Public Space Analysis · BLOK M
 
-Peta 3D interaktif dan dashboard untuk studi kelayakan **kawasan inti Blok M** (±29 ha, Jakarta Selatan). Bisa dibuka di desktop, tablet, dan HP.
+Peta 3D interaktif untuk menganalisis ruang publik **kawasan inti Blok M** (±29 ha, Jakarta Selatan). Penilaiannya memakai kerangka **Place Diagram dari Project for Public Spaces (PPS)**, lalu dibandingkan dengan skor kelayakan AHP hasil studi sebelumnya. Bisa dibuka di HP (potret dan lanskap), tablet, desktop, dan TV.
 
 | Halaman | Isi |
 |---|---|
-| `index.html` | **Peta 3D v2**: 12 lensa analisis, tur cerita, skenario interaktif, siklus siang-malam |
+| `index.html` | **Peta 3D v4**: 4 atribut PPS dengan 13 lensa, tema gelap/terang, orang, kendaraan, dan MRT bergerak |
 | `2d/index.html` | **Dashboard 2D**: skor 4 parameter utama dalam radius 800 m dari MRT |
 
-## Fitur peta 3D
+## Struktur analisis (Place Diagram PPS)
 
-- **12 lensa** dalam 4 kelompok:
-  - Parameter utama: aksesibilitas, walkability (pedshed 400/800 m), variety function, termal dan bayangan
-  - Iklim mikro: angin (CFD Lattice-Boltzmann 2D), kebisingan lalu lintas, keterbukaan langit (sky view factor)
-  - Kehidupan kota: heatmap sosial, kota 10 menit, akses ruang hijau 300 m
-  - Pengembangan dan energi: potensi PLTS atap, potensi pengembangan (selubung KLB izin)
-- **Skenario**: tanam pohon peneduh dan hitung ulang teduhan jalur; tumbuhkan selubung KLB izin per blok
-- **Tur cerita** 8 langkah dengan kamera otomatis, **panduan awal** untuk pengguna baru
-- **Lima sudut pandang** (isometrik, perspektif, mata burung, atas, jalan), terbang ke lokasi, kompas
-- **Siklus 24 jam**: posisi matahari NOAA, bayangan aktual, lampu kota di malam hari, MRT berjalan
-- **Responsif**: di HP panel analisis menjadi lembar bawah yang bisa digeser; mode ringan otomatis
+| Atribut | Lensa |
+|---|---|
+| Akses & Keterhubungan | Akses transit, Walkability (isokron jaringan nyata), Konektivitas blok (ITDP) |
+| Kenyamanan & Citra | Termal & bayangan, Angin (CFD Lattice-Boltzmann), Kebisingan (jalan, busway, terminal), Ruang hijau 300 m |
+| Kegunaan & Aktivitas | Keragaman fungsi, Kota 10 menit, Bentuk & kepadatan (Spacematrix) |
+| Sosiabilitas | Keramaian per jam, Muka aktif jalan |
+
+- Setiap atribut punya halaman ringkasan: indikator terukur (berlabel TERUKUR, AUDIT, atau MODEL), kualitas tak berwujud, dan pengukuran PPS yang masih perlu survei.
+- Setiap lensa punya tombol **Metodologi**: apa yang diukur, rumus, data, asumsi, batasan, dan rujukan.
+- **Ringkasan**: diagram cincin Place Diagram dan perbandingan skor PPS dengan skor AHP per atribut.
+
+## Fitur tampilan
+
+- **Tema gelap (bawaan) dan terang** untuk panel. Peta 3D selalu terang agar isi jalan terlihat jelas.
+- **Navigasi menyesuaikan perangkat**:
+  - Desktop: rel atribut di kiri dan panel di kanan.
+  - Tablet: rel ikon dan panel yang bisa dilipat.
+  - HP: tab bawah dan lembar geser.
+  - TV: tampilan diperbesar dan bisa dikendalikan dengan tombol arah.
+- **Menu bertingkat** (Menu, submenu, opsi) beranimasi. Sudut pandang hanya ada di toolbar atas.
+- **Panduan singkat** saat pertama dibuka, tur cerita 8 langkah, dan pintasan keyboard/remote.
+- **Simulasi 3D**:
+  - Orang berjalan, berkelompok, duduk, dan menunggu; jumlahnya mengikuti keramaian per jam.
+  - Mobil, motor, bus kota, dan TransJakarta di lajur kiri mengikuti arah jalan OSM, dengan lampu kendaraan di malam hari.
+  - MRT berhenti 30 detik di stasiun dengan kecepatan nyata. Headway asli 5/10 menit, tampil dengan rasio 1:3 secara bawaan (bisa diubah ke 1:1 atau 1:2 di menu Lapisan 3D).
+  - Kendaraan hanya melewati jalan kendaraan (tidak menembus taman) dan tetap di dalam batas peta. Lajur menyesuaikan kelas jalan.
+- **Ringan**: data berat (medan angin, peta OSM, citra satelit) dimuat hanya saat dibutuhkan. Muatan awal ±3,3 MB, sebelumnya ±6,2 MB. Kualitas grafis otomatis turun ke mode hemat bila perangkat berat; bisa diatur di menu Lapisan 3D.
 
 ## Menjalankan
 
-Klik dua kali `index.html`. Tidak perlu server, karena data dan gambar sudah dibundel (`data3d.js`, `data_v2.js`, `aset.js`). Font memakai Google Fonts bila ada internet.
+Klik dua kali `index.html`. Tidak perlu server, karena data dan gambar sudah dibundel. `data_angin.js`, `aset_peta.js`, dan `aset_satelit.js` dimuat otomatis saat lensa atau peta dasarnya dipilih. Tambahkan `?lite` di URL untuk perangkat lemah.
 
-Tambahkan `?lite` di URL untuk memaksa mode ringan (bayangan lebih kecil, tanpa efek bloom) pada perangkat lemah.
+## GitHub Pages
 
-
-## Struktur
-
-```
-index.html, app.js            Peta 3D (app.js = bundel dari src/)
-data3d.js, data_v2.js, aset.js Data analisis dan tekstur peta
-2d/                           Dashboard 2D
-src/app.js, src/index.html    Kode sumber peta 3D
-src/vendor/                   three.js r170, camera-controls, anime.js, postprocessing three.js
-scripts/                      Skrip Python pengolah data
-```
+1. Unggah seluruh isi folder ini ke repo (`index.html` di root).
+2. **Settings → Pages → Deploy from a branch**, branch `main`, folder `/ (root)`.
+3. Tautan langsung ke lensa memakai hash, misalnya `#pakses`, `#bising`, `#muka`.
 
 ## Mengubah kode
 
 ```sh
-npm install      # memasang esbuild dan Apache ECharts
-npm run build    # menghasilkan app.js dari src/app.js
+npm install
+npm run build          # src/app.js -> app.js
 cp src/index.html index.html
 ```
 
 ## Mengolah ulang data
 
-Skrip mengharapkan data mentah di `../Map` (struktur folder proyek 6 FS BLOK M) dan menulis ke `build/`:
-
 ```sh
-pip install numpy scipy scikit-image pillow
-python scripts/analisis_spasial.py   # grid aksesibilitas, walkability, guna lahan, termal
-python scripts/build2d.py            # dashboard 2D
-python scripts/prep3d.py             # bangunan, pohon, POI, medan angin LBM
-python scripts/analisis_v2.py        # kawasan inti: kebisingan, SVF, fasilitas, RTH, PLTS, KLB
-python scripts/bundle_data3d.py      # data3d.js, data_v2.js, aset.js
+pip install numpy scipy scikit-image pillow osmnx momepy
+python scripts/analisis_spasial.py   # grid dasar (dashboard 2D)
+python scripts/build2d.py
+python scripts/prep3d.py             # tekstur, pohon dari citra satelit
+python scripts/ambil_osm.py          # unduh OSM (api.openstreetmap.org)
+python scripts/osm_merge.py
+python scripts/osm_reg.py            # registrasi ke peta dasar (hasil kami: scripts/reg.json)
+python scripts/prep_osm.py           # bangunan, POI, halte dari OSM + medan angin LBM
+python scripts/analisis_v2.py        # fasilitas, RTH, termal pendukung
+python scripts/analisis_osm.py       # graf jalan OSMnx, Spacematrix, ITDP
+python scripts/analisis_v4.py        # kebisingan OSM + terminal, muka aktif, rute kendaraan
+python scripts/bundle_data3d.py
 ```
 
-## Metodologi singkat
+## Batasan
 
-- **Skor kelayakan**: 4 parameter utama untuk kawasan inti, digabung dengan bobot AHP (Gifarry dkk., 2022).
-- **Bangunan**: tapak OSM; tinggi 5 landmark dari sumber publik, lainnya estimasi tipologi yang dikalibrasi ke KLB/KDB audit TOD.
-- **Kebisingan**: estimasi indikatif dari kelas jalan OSM dengan atenuasi jarak dan difraksi; baku mutu KepMenLH 48/1996 dan KepGub DKI 551/2001.
-- **PLTS atap**: yield 1.250 kWh/kWp (studi PLTS atap Jakarta, EREM 2024), dikurangi bayangan sepanjang tahun.
-- **Potensi pengembangan**: KLB izin diasumsikan 6,65 untuk blok komersial dan 1,2 untuk hunian; cek ulang ke RDTR per persil.
-- **Heatmap sosial**: model terkalibrasi (POI × profil jam), bukan data ponsel.
+- Kebisingan, indeks panas, angin, dan keramaian adalah **model**, jadi pakai untuk membandingkan lokasi, bukan sebagai angka absolut.
+- Kualitas tak berwujud PPS dan pengukuran sosial (komposisi pengunjung, kriminalitas, kebersihan) perlu survei lapangan seperti Place Game dan behavior mapping.
+- Data OSM hanya memuat yang sudah dipetakan.
 
-Rincian lengkap ada di menu **Metodologi & sumber** pada peta.
+## Atribusi
 
-## Atribusi dan lisensi pihak ketiga
-
-- Peta dasar dan tapak bangunan © kontributor [OpenStreetMap](https://www.openstreetmap.org/copyright), ODbL.
-- Citra satelit: Google Earth. Periksa ketentuan Google sebelum repo dibuat publik.
-- [three.js](https://threejs.org) (MIT), [camera-controls](https://github.com/yomotsu/camera-controls) (MIT), [Apache ECharts](https://echarts.apache.org) (Apache-2.0), [anime.js](https://animejs.com) (MIT).
-- Data pengunjung dan ridership: PT MRT Jakarta, Katadata, dan jurnal yang dirujuk di menu Metodologi.
+- Peta © kontributor [OpenStreetMap](https://www.openstreetmap.org/copyright), ODbL. Citra satelit: Google Earth, jadi periksa ketentuannya sebelum repo dibuat publik.
+- Kerangka: [Project for Public Spaces](https://www.pps.org/article/grplacefeat). Metode OSM: [open-urban-analysis](https://github.com/dzakybd/open-urban-analysis). Ambang ITDP: [Urban-Design-Skills](https://github.com/Abhinavbwj/Urban-Design-Skills-Claude).
+- Perangkat: [OSMnx](https://github.com/gboeing/osmnx) (MIT), NetworkX, momepy, shapely (BSD), [three.js](https://threejs.org), camera-controls, anime.js (MIT), [Apache ECharts](https://echarts.apache.org) (Apache-2.0). Font Plus Jakarta Sans (OFL).
